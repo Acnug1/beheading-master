@@ -15,5 +15,4 @@ MonoBehaviour:
   _radius: 3
   _force: 1500
   _explodeDelay: 0
-  _explosionEffect: {fileID: 198194127032045410, guid: 46876a2780737ec45a19d62f88e5ce56,
-    type: 3}
+  _explosionEffect: {fileID: 19801716, guid: 07bf9ced87963e24299c2c2a22bfeeb6, type: 3}

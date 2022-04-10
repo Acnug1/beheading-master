@@ -6,12 +6,12 @@ public class Enemy : Character
     [SerializeField] private float _activationDistanceForSmileScared;
 
     private SmileScared _smileScared;
-    private MeshSlicer _meshSlicer;
+    private Follower[] _followers;
 
     private void Start()
     {
         _smileScared = GetComponentInChildren<SmileScared>();
-        _meshSlicer = FindObjectOfType<MeshSlicer>();
+        _followers = FindObjectsOfType<Follower>();
     }
 
     protected override void Update()
@@ -19,14 +19,22 @@ public class Enemy : Character
         base.Update();
 
         if (IsAlive && _smileScared)
-            CheckDistanceToMeshSlicer();
+        {
+            if (CheckDistanceToFollowers())
+                _smileScared.EnableSmileScared();
+            else
+                _smileScared.DisableSmileScared();
+        }
     }
 
-    private void CheckDistanceToMeshSlicer()
+    private bool CheckDistanceToFollowers()
     {
-        if (Vector3.Distance(transform.position, _meshSlicer.transform.position) <= _activationDistanceForSmileScared)
-            _smileScared.EnableSmileScared();
-        else
-            _smileScared.DisableSmileScared();
+        foreach (var follower in _followers)
+        {
+            if (Vector3.Distance(transform.position, follower.transform.position) <= _activationDistanceForSmileScared)
+                return true;
+        }
+
+        return false;
     }
 }
