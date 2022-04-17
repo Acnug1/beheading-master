@@ -997,7 +997,7 @@ public class SkeletonMeshSlicer : MonoBehaviour
                 sliceTarget.AfterProcess();
             if (SliceFinishAction != null)
                 SliceFinishAction(); 
-            Debug.Log("Slice finished!");            
+        //    Debug.Log("Slice finished!");            
         }    
     }
     /// <summary>
@@ -1010,7 +1010,7 @@ public class SkeletonMeshSlicer : MonoBehaviour
     {
         if (!isInCut.Any(inCut => inCut))
         {
-            Debug.Log("Begin to try slice!");
+        //    Debug.Log("Begin to try slice!");
             _slicePlane = new Plane(planeNormal, planePosition);
             SliceFinishAction = whenSliceFinish;
 

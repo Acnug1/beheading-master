@@ -14,11 +14,6 @@ public class SliceTester : MonoBehaviour
     {
         animator = slicer.GetComponent<Animator>();
     }
-    void Update() 
-    {
-        if (Input.GetButtonDown("Attack") && isDebug)
-            slicer.SliceByMeshPlane(transform.up, transform.position);
-    }
     /// <summary>
     /// It's important to set the normal vertical to the plane for slice, e.g, we set to transform.forward here
     /// </summary>
@@ -26,7 +21,7 @@ public class SliceTester : MonoBehaviour
     public void TrySlice()
     {
         //var nowTime = Time.realtimeSinceStartup; 
-        slicer.SliceByMeshPlane(transform.forward, transform.position, ActiveRagdollWhenNeeded);        
+        slicer.SliceByMeshPlane(transform.up, transform.position, ActiveRagdollWhenNeeded);        
         //Debug.Log(Time.realtimeSinceStartup - nowTime);
     } 
     void ActiveRagdollWhenNeeded()

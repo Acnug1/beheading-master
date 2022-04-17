@@ -1,16 +1,9 @@
 using UnityEngine;
-using SliceFramework;
 
 public class MeshSlicer : MonoBehaviour
 {
-#if UNITY_EDITOR
-    private void OnDrawGizmos()
-    {
-        SliceFramework.Plane cuttingPlane = new SliceFramework.Plane();
-        cuttingPlane.Compute(transform);
-        cuttingPlane.OnDebugDraw();
-    }
-#endif
+    [Min(0f)]
+    [SerializeField] private float _lifeTimeSliceEffect = 3f;
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -37,63 +30,28 @@ public class MeshSlicer : MonoBehaviour
     private void TryTakeObjectToSlice(GameObject collisionObject, ContactPoint contactPoint)
     {
         if (collisionObject.TryGetComponent(out Sliceable sliceable))
-            TryToSliceObject(collisionObject, sliceable.SliceMaterial, sliceable.SliceEffect, contactPoint);
+            TryToSliceObject(collisionObject, sliceable.SliceEffect, contactPoint);
     }
 
-    private void TryToSliceObject(GameObject collisionObject, Material sliceMaterial, GameObject sliceEffect, ContactPoint contactPoint)
+    private void TryToSliceObject(GameObject collisionObject, GameObject sliceEffect, ContactPoint contactPoint)
     {
-        if (collisionObject && collisionObject.activeSelf)
+        if (collisionObject && collisionObject.activeSelf && collisionObject.TryGetComponent(out SkeletonMeshSlicer slicer))
         {
-            SlicedHull hull = collisionObject.Slice(transform.position, transform.up, sliceMaterial);
+            slicer.SliceByMeshPlane(transform.up, transform.position);
 
-            if (hull != null)
-            {
-                ToSliceObject(collisionObject, hull, sliceMaterial, sliceEffect, contactPoint);
-            }
+            if (sliceEffect)
+                PlayVFX(sliceEffect, contactPoint);
         }
     }
 
-    private void ToSliceObject(GameObject collisionObject, SlicedHull hull,
-        Material sliceMaterial, GameObject sliceEffect, ContactPoint contactPoint)
+    private void PlayVFX(GameObject sliceEffect, ContactPoint contactPoint)
     {
-        GameObject lower = hull.CreateLowerHull(collisionObject, sliceMaterial);
-        GameObject upper = hull.CreateUpperHull(collisionObject, sliceMaterial);
-
-        if (sliceEffect)
-            PlayVFX(sliceEffect, contactPoint, lower, upper);
-
-        DestroyObjectToSlice(collisionObject);
-        AddMeshCollider(lower, upper);
-        AddRigidbody(lower, upper);
+        var effect = Instantiate(sliceEffect, contactPoint.point, Quaternion.LookRotation(contactPoint.normal));
+        DestroySliceEffect(effect);
     }
 
-    private void PlayVFX(GameObject sliceEffect, ContactPoint contactPoint, params GameObject[] charactersParts)
+    private void DestroySliceEffect(GameObject effect)
     {
-        foreach (GameObject characterParts in charactersParts)
-        {
-            Instantiate(sliceEffect, contactPoint.point, Quaternion.LookRotation(contactPoint.normal), characterParts.transform);
-        }
-    }
-
-    private void DestroyObjectToSlice(GameObject collisionObject)
-    {
-        Destroy(collisionObject);
-    }
-
-    private void AddMeshCollider(params GameObject[] gameObjects)
-    {
-        foreach (var gameObject in gameObjects)
-        {
-            MeshCollider collider = gameObject.AddComponent<MeshCollider>();
-            collider.convex = true;
-        }
-    }
-
-    private void AddRigidbody(params GameObject[] gameObjects)
-    {
-        foreach (var gameObject in gameObjects)
-        {
-            gameObject.AddComponent<Rigidbody>();
-        }
+        Destroy(effect, _lifeTimeSliceEffect);
     }
 }
